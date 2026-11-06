@@ -4,8 +4,7 @@ import json
 import urllib.parse
 
 # 1. LINK WEBHOOK GOOGLE APPS SCRIPT
-URL_WEBHOOK_GOOGLE_SHEET = "# 1. LINK WEBHOOK GOOGLE APPS SCRIPT
-URL_WEBHOOK_GOOGLE_SHEET = "https://script.google.com/macros/s/AKfycbwdriqO51UiAKejdJOvZsQU6To-YAqQEPzkKTloOPhmkOeYQ6ow4H9Jsj3k85hMPHKODQ/exec""
+URL_WEBHOOK_GOOGLE_SHEET = "https://script.google.com/macros/s/AKfycbwdriqO51UiAKejdJOvZsQU6To-YAqQEPzkKTloOPhmkOeYQ6ow4H9Jsj3k85hMPHKODQ/exec"
 
 # 2. Cấu hình giao diện Streamlit
 st.set_page_config(
