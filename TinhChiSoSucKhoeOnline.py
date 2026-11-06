@@ -3,10 +3,10 @@ import requests
 import json
 import urllib.parse
 
-# 1. LINK WEBHOOK GOOGLE APPS SCRIPT
+# 1. LINK WEBHOOK GOOGLE APPS SCRIPT ĐÃ KẾT NỐI
 URL_WEBHOOK_GOOGLE_SHEET = "https://script.google.com/macros/s/AKfycbwdriqO51UiAKejdJOvZsQU6To-YAqQEPzkKTloOPhmkOeYQ6ow4H9Jsj3k85hMPHKODQ/exec"
 
-# 2. Cấu hình giao diện Streamlit
+# 2. Cấu hình giao diện ứng dụng Streamlit
 st.set_page_config(
     page_title="Học Viện MBA - Kiểm Soát Sinh Học & Tầm Soát Sức Khỏe",
     page_icon="🧬",
@@ -24,42 +24,45 @@ h2, h3 { color: #F7D070 !important; }
 .metric-val { font-size: 26px; font-weight: bold; color: #FFE082; }
 .report-card { background-color: #064037; border: 2px solid #D4AF37; border-radius: 12px; padding: 24px; margin-top: 25px; }
 label, p, span { color: #F0F4F8 !important; }
-.stButton>button { background-color: #D4AF37; color: #00332C; font-weight: bold; border-radius: 8px; padding: 12px 24px; width: 100%; border: none; }
+.stButton>button { background-color: #D4AF37; color: #00332C; font-weight: bold; border-radius: 8px; padding: 12px 24px; width: 100%; border: none; font-size: 16px; }
 .stButton>button:hover { background-color: #F7D070; color: #00221D; }
-.btn-zalo { display: inline-block; background-color: #0068FF; color: #FFFFFF !important; font-weight: bold; text-align: center; padding: 14px 24px; border-radius: 8px; text-decoration: none; font-size: 16px; width: 100%; margin-top: 15px; }
+.btn-zalo { display: block; background-color: #0068FF; color: #FFFFFF !important; font-weight: bold; text-align: center; padding: 14px 20px; border-radius: 8px; text-decoration: none; font-size: 16px; width: 100%; margin-top: 0px; box-shadow: 0 4px 12px rgba(0,104,255,0.4); }
+.btn-zalo:hover { background-color: #0056D2; }
 </style>
 """
 st.markdown(css_style, unsafe_allow_html=True)
 
 st.markdown("<h1>HỌC VIỆN MBA - CÔNG CỤ TÍNH CHỈ SỐ SINH HỌC & CHUYỂN HÓA</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 15px; color: #CBD5E1;'>Hệ thống sàng lọc, túm bắt vấn đề chuyển hóa và tư vấn phục hồi sinh học tế bào</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 15px; color: #CBD5E1;'>Hệ thống dành cho Cán bộ tư vấn hỏi và điền trực tiếp tại bàn khám cho bà con</p>", unsafe_allow_html=True)
 st.markdown("---")
 
-# ==================== BƯỚC 1: THÔNG TIN HỒ SƠ ====================
+# ==================== BƯỚC 1: HỒ SƠ KHÁCH HÀNG ====================
 st.markdown("<div class='box-lead'>", unsafe_allow_html=True)
-st.subheader("📋 BƯỚC 1: THÔNG TIN HỒ SƠ SINH HỌC CÁ NHÂN")
-st.caption("Điền thông tin để hệ thống xuất Báo cáo phân tích chuyên sâu gửi về Email và hỗ trợ tư vấn trực tiếp.")
+st.subheader("📋 BƯỚC 1: THÔNG TIN HỒ SƠ SINH HỌC (CÁN BỘ ĐIỀN DÙM BÀ CON)")
+st.caption("Lưu ý: Email không bắt buộc. Bà con lớn tuổi không dùng email hãy để trống.")
 
-col_lead1, col_lead2, col_lead3, col_lead4 = st.columns([1.2, 1.0, 1.2, 1.4])
+col_lead1, col_lead2, col_lead3 = st.columns([1.2, 1.2, 1.4])
 with col_lead1:
     HoTen = st.text_input("Họ và Tên (*):", placeholder="Ví dụ: Nguyễn Văn A", key="lead_name")
 with col_lead2:
     SoDienThoai = st.text_input("Số điện thoại / Zalo (*):", placeholder="0909xxxxxx", key="lead_phone")
 with col_lead3:
-    EmailKhach = st.text_input("Email (nếu có để nhận Ebook):", placeholder="vidu@gmail.com", key="lead_email")
-with col_lead4:
-    VanDeQuanTam = st.selectbox(
-        "Vấn đề quan tâm hàng đầu:",
-        [
-            "Bụng to, mỡ nội tạng khó giảm",
-            "Đường huyết cao / Lo sợ tiểu đường",
-            "Mệt mỏi mạn tính, thiếu hụt năng lượng",
-            "Mất ngủ, khó ngủ sâu giấc",
-            "Yếu cơ, teo cơ, đau nhức xương khớp",
-            "Tăng huyết áp / Mỡ máu / Nguy cơ tim mạch"
-        ],
-        key="lead_problem"
-    )
+    EmailKhach = st.text_input("Email (Không bắt buộc):", placeholder="Không có thì để trống", key="lead_email")
+
+# Cho phép chọn nhiều vấn đề bệnh lý cùng lúc
+VanDeQuanTam = st.multiselect(
+    "Vấn đề sức khỏe bà con đang gặp phải (Được tích chọn nhiều mục):",
+    [
+        "Bụng to, mỡ nội tạng khó giảm",
+        "Đường huyết cao / Lo sợ tiểu đường",
+        "Mệt mỏi mạn tính, thiếu hụt năng lượng",
+        "Mất ngủ, khó ngủ sâu giấc",
+        "Yếu cơ, teo cơ, đau nhức xương khớp",
+        "Tăng huyết áp / Mỡ máu / Nguy cơ tim mạch"
+    ],
+    default=["Bụng to, mỡ nội tạng khó giảm"],
+    key="lead_problem"
+)
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Bộ nhớ tạm phiên làm việc
@@ -73,7 +76,7 @@ if "data_metrics" not in st.session_state:
         "CanhBao": []
     }
 
-# ==================== BƯỚC 2: 5 TAB CÔNG THỨC ====================
+# ==================== BƯỚC 2: 5 TAB CÔNG THỨC SINH HỌC ====================
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "1. WHtR (Eo / Chiều cao)",
     "2. WHR (Eo / Mông)",
@@ -85,10 +88,10 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 # 1. WHtR
 with tab1:
     st.subheader("Tỷ lệ Vòng eo / Chiều cao (WHtR)")
-    col1, col2 = st.columns(2)
-    with col1:
+    c1, c2 = st.columns(2)
+    with c1:
         VongBung_WHtR = st.number_input("Vòng bụng ngang rốn (cm):", min_value=30.0, max_value=200.0, value=78.0, step=0.5, key="whtr_vb")
-    with col2:
+    with c2:
         ChieuCao_WHtR = st.number_input("Chiều cao (cm):", min_value=80.0, max_value=250.0, value=165.0, step=0.5, key="whtr_cc")
 
     if st.button("Lưu & Đánh Giá Chỉ Số WHtR", key="btn_whtr"):
@@ -97,7 +100,7 @@ with tab1:
             st.session_state.data_metrics["WHtR"] = val
             st.markdown("<div class='metric-card'>Chỉ số WHtR: <span class='metric-val'>" + str(val) + "</span></div>", unsafe_allow_html=True)
             if val >= 0.5:
-                warn = "WHtR = " + str(val) + " (≥ 0.5): Mỡ nội tạng bao quanh tạng phủ cao, nguy cơ xơ vữa mạch máu và rối loạn chuyển hóa."
+                warn = "WHtR = " + str(val) + " (≥ 0.5): Mỡ nội tạng cao, nguy cơ xơ vữa mạch máu và rối loạn chuyển hóa."
                 if warn not in st.session_state.data_metrics["CanhBao"]:
                     st.session_state.data_metrics["CanhBao"].append(warn)
                 st.warning("⚠️ " + warn)
@@ -107,12 +110,12 @@ with tab1:
 # 2. WHR
 with tab2:
     st.subheader("Tỷ lệ Vòng eo / Vòng mông (WHR)")
-    col1, col2, col3 = st.columns(3)
-    with col1:
+    c1, c2, c3 = st.columns(3)
+    with c1:
         GioiTinh_WHR = st.radio("Giới tính:", ["Nam", "Nữ"], horizontal=True, key="whr_sex")
-    with col2:
+    with c2:
         VongBung_WHR = st.number_input("Vòng bụng (cm):", min_value=30.0, max_value=200.0, value=82.0, step=0.5, key="whr_vb")
-    with col3:
+    with c3:
         VongMong_WHR = st.number_input("Vòng mông (cm):", min_value=30.0, max_value=220.0, value=92.0, step=0.5, key="whr_vm")
 
     if st.button("Lưu & Đánh Giá Chỉ Số WHR", key="btn_whr"):
@@ -132,12 +135,12 @@ with tab2:
 # 3. RFM
 with tab3:
     st.subheader("Relative Fat Mass (RFM - Ước tính % Mỡ cơ thể)")
-    col1, col2, col3 = st.columns(3)
-    with col1:
+    c1, c2, c3 = st.columns(3)
+    with c1:
         GioiTinh_RFM = st.radio("Giới tính:", ["Nam", "Nữ"], horizontal=True, key="rfm_sex")
-    with col2:
+    with c2:
         ChieuCao_RFM = st.number_input("Chiều cao (cm):", value=165.0, step=0.5, key="rfm_cc")
-    with col3:
+    with c3:
         VongEo_RFM = st.number_input("Vòng eo (cm):", value=78.0, step=0.5, key="rfm_ve")
 
     if st.button("Lưu & Đánh Giá % Mỡ RFM", key="btn_rfm"):
@@ -156,11 +159,11 @@ with tab3:
 # 4. BMR
 with tab4:
     st.subheader("Tiêu Hao Năng Lượng Cơ Bản (BMR)")
-    col1, col2 = st.columns(2)
-    with col1:
+    c1, c2 = st.columns(2)
+    with c1:
         GioiTinh_BMR = st.radio("Giới tính:", ["Nam", "Nữ"], horizontal=True, key="bmr_sex")
         Tuoi_BMR = st.number_input("Tuổi:", min_value=10, max_value=120, value=40, step=1, key="bmr_age")
-    with col2:
+    with c2:
         CanNang_BMR = st.number_input("Cân nặng (kg):", value=62.0, step=0.5, key="bmr_w")
         ChieuCao_BMR = st.number_input("Chiều cao (cm):", value=165.0, step=0.5, key="bmr_h")
 
@@ -172,10 +175,10 @@ with tab4:
 # 5. Mất Nước
 with tab5:
     st.subheader("Tỷ Lệ Mất Nước Ước Tính")
-    col1, col2 = st.columns(2)
-    with col1:
+    c1, c2 = st.columns(2)
+    with c1:
         Truoc = st.number_input("Cân nặng trước (kg):", value=62.0, step=0.1, key="dehyd_b")
-    with col2:
+    with c2:
         Sau = st.number_input("Cân nặng sau (kg):", value=61.2, step=0.1, key="dehyd_a")
 
     if st.button("Lưu & Đánh Giá Mất Nước", key="btn_dehyd"):
@@ -191,69 +194,66 @@ with tab5:
             else:
                 st.success("✅ Mức dịch thể ổn định.")
 
-# ==================== BƯỚC 3: GỬI WEBHOOK & XUẤT BÁO CÁO ====================
+# ==================== BƯỚC 3: GỬI SHEET & NÚT ZALO THƯỜNG TRỰC ====================
 st.markdown("---")
-st.subheader("🎯 BƯỚC 3: TỔNG HỢP BÁO CÁO & LƯU HỒ SƠ VỀ GOOGLE SHEET")
+st.subheader("🎯 BƯỚC 3: GHI NHẬN HỒ SƠ & TƯ VẤN")
 
-if st.button("📥 BẤM ĐỂ LƯU VÀO GOOGLE SHEET & XUẤT BÁO CÁO TƯ VẤN"):
-    if not HoTen or not SoDienThoai:
-        st.error("⚠️ Thầy/Khách hàng vui lòng điền đầy đủ Họ Tên và Số Điện Thoại ở BƯỚC 1 trước khi lưu!")
-    else:
-        m = st.session_state.data_metrics
-        whtr_txt = str(m['WHtR']) if m['WHtR'] else "Chưa nhập"
-        whr_txt = str(m['WHR']) if m['WHR'] else "Chưa nhập"
-        rfm_txt = str(m['RFM']) + "%" if m['RFM'] else "Chưa nhập"
-        bmr_txt = str(m['BMR']) + " kcal" if m['BMR'] else "Chưa nhập"
-        loss_txt = str(m['MatNuoc']) + "%" if m['MatNuoc'] else "Chưa nhập"
+m = st.session_state.data_metrics
+whtr_txt = str(m['WHtR']) if m['WHtR'] else "Chưa nhập"
+whr_txt = str(m['WHR']) if m['WHR'] else "Chưa nhập"
+rfm_txt = str(m['RFM']) + "%" if m['RFM'] else "Chưa nhập"
+bmr_txt = str(m['BMR']) + " kcal" if m['BMR'] else "Chưa nhập"
+loss_txt = str(m['MatNuoc']) + "%" if m['MatNuoc'] else "Chưa nhập"
+ds_noidung = ", ".join(VanDeQuanTam) if VanDeQuanTam else "Sàng lọc tổng quát"
 
-        payload = {
-            "HoTen": HoTen,
-            "SoDienThoai": SoDienThoai,
-            "Email": EmailKhach,
-            "VanDeQuanTam": VanDeQuanTam,
-            "WHtR": whtr_txt,
-            "WHR": whr_txt,
-            "RFM": rfm_txt,
-            "BMR": bmr_txt,
-            "MatNuoc": loss_txt
-        }
+col_act1, col_act2 = st.columns(2)
 
-        with st.spinner("Đang lưu trữ dữ liệu và kích hoạt hệ thống tư vấn..."):
-            try:
-                res = requests.post(URL_WEBHOOK_GOOGLE_SHEET, data=json.dumps(payload), timeout=10)
-                ket_qua = res.json()
+with col_act1:
+    if st.button("📥 BẤM ĐỂ LƯU VÀO GOOGLE SHEET (TAB FROMWEBHOOK)"):
+        if not HoTen or not SoDienThoai:
+            st.error("⚠️ Cán bộ vui lòng hỏi và điền Họ Tên cùng Số Điện Thoại của bà con!")
+        else:
+            payload = {
+                "HoTen": HoTen,
+                "SoDienThoai": SoDienThoai,
+                "Email": EmailKhach if EmailKhach else "Không dùng",
+                "VanDeQuanTam": ds_noidung,
+                "WHtR": whtr_txt,
+                "WHR": whr_txt,
+                "RFM": rfm_txt,
+                "BMR": bmr_txt,
+                "MatNuoc": loss_txt
+            }
+            with st.spinner("Đang lưu vào Tab FromWebhook..."):
+                try:
+                    res = requests.post(URL_WEBHOOK_GOOGLE_SHEET, data=json.dumps(payload), timeout=10)
+                    ket_qua = res.json()
+                    if ket_qua.get("status") == "success":
+                        st.success("🎉 ĐÃ LƯU THÀNH CÔNG VÀO TAB FROMWEBHOOK!")
+                        st.markdown("<div class='report-card'>", unsafe_allow_html=True)
+                        st.markdown("<h2 style='color:#D4AF37; text-align:center;'>PHIẾU TƯ VẤN TẠI BÀN KHÁM</h2>", unsafe_allow_html=True)
+                        st.write(f"**Bà con:** {ket_qua.get('HoTen')} | **SĐT:** {ket_qua.get('SoDienThoai')}")
+                        st.write(f"**Mức độ nguy cơ:** {ket_qua.get('MucDoNguyCo')}")
+                        st.info(ket_qua.get('KetLuanTongHop'))
+                        st.success(ket_qua.get('PhacDoDinhDuong'))
+                        st.caption(f"Trạng thái: {ket_qua.get('EmailStatus')}")
+                        st.markdown("</div>", unsafe_allow_html=True)
+                    else:
+                        st.error(f"Lỗi phản hồi từ Google Sheet: {ket_qua.get('message')}")
+                except Exception as e:
+                    st.error(f"Lỗi kết nối Webhook: {e}")
 
-                if ket_qua.get("status") == "success":
-                    st.success("🎉 DỮ LIỆU ĐÃ ĐƯỢC LƯU VÀO GOOGLE SHEET VÀ TỰ ĐỘNG GỬI EMAIL THÀNH CÔNG!")
-
-                    # GIAO DIỆN THỨ 2: TƯ VẤN TRỰC TIẾP TẠI BÀN
-                    st.markdown("<div class='report-card'>", unsafe_allow_html=True)
-                    st.markdown("<h2 style='color:#D4AF37; text-align:center; margin-top:0;'>PHIẾU TƯ VẤN SỨC KHỎE TẠI BÀN</h2>", unsafe_allow_html=True)
-                    st.write(f"**Họ và tên:** {ket_qua.get('HoTen')} | **SĐT:** {ket_qua.get('SoDienThoai')}")
-                    st.write(f"**Mức độ nguy cơ:** {ket_qua.get('MucDoNguyCo')}")
-                    st.markdown("---")
-                    st.markdown("#### 1. TỔNG HỢP NGUY CƠ LÂM SÀNG:")
-                    st.info(ket_qua.get('KetLuanTongHop'))
-                    st.markdown("#### 2. LỜI KHUYÊN & GIẢI PHÁP DINH DƯỠNG TẾ BÀO:")
-                    st.success(ket_qua.get('PhacDoDinhDuong'))
-                    st.caption(f"Trạng thái thư: {ket_qua.get('EmailStatus')}")
-                    st.markdown("</div>", unsafe_allow_html=True)
-                else:
-                    st.error(f"Lỗi phản hồi từ Google Sheet: {ket_qua.get('message')}")
-            except Exception as e:
-                st.warning(f"Lưu ý: Không thể kết nối với Webhook (Lỗi: {e}). Dữ liệu vẫn sẵn sàng để gửi qua Zalo.")
-
-        # NÚT GỬI HỒ SƠ QUA ZALO THS JONATHAN PHỤNG
-        msg_text = (
-            "KÍNH GỬI THS JONATHAN PHỤNG - MBA\n"
-            "Hồ sơ sàng lọc sinh học thực địa Trà Vinh:\n"
-            f"• Họ và Tên: {HoTen}\n"
-            f"• Số điện thoại: {SoDienThoai}\n"
-            f"• Email: {EmailKhach if EmailKhach else 'Không có'}\n"
-            f"• Nỗi lo quan tâm: {VanDeQuanTam}\n"
-            "--------------------------\n"
-            f"KẾT QUẢ: WHtR: {whtr_txt} | WHR: {whr_txt} | %Mỡ RFM: {rfm_txt} | BMR: {bmr_txt} | Mất nước: {loss_txt}"
-        )
-        zalo_link = "https://zalo.me/0909380181?text=" + urllib.parse.quote(msg_text)
-
-        st.markdown(f'<a href="{zalo_link}" target="_blank" class="btn-zalo">📲 BẤM VÀO ĐÂY ĐỂ GỬI HỒ SƠ QUA ZALO BÁC SĨ (0909 380 181)</a>', unsafe_allow_html=True)
+# NÚT ZALO HIỂN THỊ THƯỜNG TRỰC 24/7
+with col_act2:
+    msg_text = (
+        "KÍNH GỬI THS JONATHAN PHỤNG - MBA\n"
+        "Hồ sơ sàng lọc Trà Vinh (Cán bộ điền dùm):\n"
+        f"• Họ và Tên: {HoTen if HoTen else 'Chưa điền'}\n"
+        f"• Số điện thoại: {SoDienThoai if SoDienThoai else 'Chưa điền'}\n"
+        f"• Email: {EmailKhach if EmailKhach else 'Không có'}\n"
+        f"• Vấn đề: {ds_noidung}\n"
+        "--------------------------\n"
+        f"CHỈ SỐ: WHtR: {whtr_txt} | WHR: {whr_txt} | %Mỡ RFM: {rfm_txt} | BMR: {bmr_txt} | Mất nước: {loss_txt}"
+    )
+    zalo_link = "https://zalo.me/0909380181?text=" + urllib.parse.quote(msg_text)
+    st.markdown(f'<a href="{zalo_link}" target="_blank" class="btn-zalo">📲 BẤM VÀO ĐÂY ĐỂ GỬI HỒ SƠ QUA ZALO THS JONATHAN PHỤNG (0909 380 181)</a>', unsafe_allow_html=True)
